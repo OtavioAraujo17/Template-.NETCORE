@@ -26,6 +26,7 @@ namespace Template.Data.Context
         protected override void OnModelCreating(ModelBuilder modelBuidel)
         {
             modelBuidel.ApplyConfiguration(new UserMap());
+            modelBuidel.ApplyGlobalConfigurations();
             modelBuidel.SeedData();
             base.OnModelCreating(modelBuidel);
         }

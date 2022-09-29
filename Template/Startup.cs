@@ -6,7 +6,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
+using Template.Application.AutoMapper;
 using Template.Data.Context;
+using Template.IoC;
+using Template.Swagger;
 
 namespace Template
 {
@@ -24,6 +28,15 @@ namespace Template
         {
             services.AddControllersWithViews();
             services.AddDbContext<TemplateContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("TemplateDB")).EnableSensitiveDataLogging());
+            NativeInjector.RegisterServices(services);
+
+            services.AddAutoMapper(typeof(AutoMapperSetup));
+            services.AddSwaggerConfiguration();
+
+            //services.AddSwaggerGen(c =>
+            //{
+            //    c.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
+            //});
 
             // In production, the Angular files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -45,6 +58,11 @@ namespace Template
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            //app.UseSwagger();
+            //app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "API v1"));
+
+            app.UserSwaggerConfiguration();
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
