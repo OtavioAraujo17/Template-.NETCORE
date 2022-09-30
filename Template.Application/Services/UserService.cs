@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -44,15 +45,13 @@ namespace Template.Application.Services
 
         public bool Post(UserViewModel userViewModel)
         {
-            //User user = new User
-            //{
-            //    Id = Guid.NewGuid(),
-            //    Email = userViewModel.Email,
-            //    Name = userViewModel.Name
-            //};
+            if (userViewModel.Id != Guid.Empty)
+                throw new Exception("UserID must be empty!");
+
+            Validator.ValidateObject(userViewModel, new ValidationContext(userViewModel), true);
 
             User user = mapper.Map<User>(userViewModel);
-
+            //user.Password = EncryptPassword(user.Password);
             this.userRepository.Create(user);
             return true;
         }
@@ -71,11 +70,16 @@ namespace Template.Application.Services
 
         public bool Put(UserViewModel userViewModel)
         {
+            if (userViewModel.Id == Guid.Empty)
+                throw new Exception("ID is invalid");
+
+
             User user = this.userRepository.Find(x => x.Id == userViewModel.Id && !x.IsDeleted);
             if (user == null)
                 throw new Exception("User not found!");
 
             user = mapper.Map<User>(userViewModel);
+            //_user.Password = EncryptPassword(_user.Password);
             this.userRepository.Update(user);
             return true;
         }
@@ -94,6 +98,11 @@ namespace Template.Application.Services
 
         public UserAuthenticateResponseViewModel Authentication(UserAuthenticateRequestViewModel users)
         {
+            if (string.IsNullOrEmpty(users.Email) || string.IsNullOrEmpty(users.Password))
+                throw new Exception("Email/Password are required.");
+
+            //user.Password = EncryptPassword(user.Password);
+
             User user = this.userRepository.Find(x => !x.IsDeleted && x.Email.ToLower() == users.Email.ToLower());
             if(user == null)
                 throw new Exception("User not found!");
